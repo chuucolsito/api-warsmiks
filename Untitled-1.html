@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS - Tienda El Rapido</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --error: #f43f5e;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+        }
+
+        /* Fondo animado moderno */
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Tarjeta principal estilo Neumorfismo/Limpio */
+        .caja-registradora { 
+            width: 100%;
+            max-width: 450px; 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 40px 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        h2 { 
+            text-align: center; 
+            color: var(--text-dark); 
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .seccion { 
+            margin-bottom: 25px; 
+        }
+
+        .seccion h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Campos de texto animados */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        label { 
+            display: block; 
+            font-size: 0.85rem;
+            font-weight: 500; 
+            color: var(--text-light); 
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        input:focus + label {
+            color: var(--primary);
+        }
+
+        /* Boton interactivo */
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer; 
+            margin-top: 15px; 
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+        }
+
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+        
+        button:active { 
+            transform: translateY(0); 
+        }
+        
+        button:disabled { 
+            background: #cbd5e1; 
+            box-shadow: none;
+            cursor: not-allowed; 
+            transform: none;
+        }
+
+        /* Alertas con animacion suave */
+        #resultado { 
+            margin-top: 25px; 
+            padding: 20px; 
+            border-radius: 12px; 
+            display: none; 
+            text-align: center;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .exito { background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .error { background-color: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="caja-registradora">
+    <h2>POS - El Rapido</h2>
+    <form id="formulario-factura">
+        
+        <div class="seccion">
+            <h3>Datos del Cliente</h3>
+            <div class="input-group">
+                <label for="cedula">Cedula de Ciudadania</label>
+                <input type="number" id="cedula" placeholder="Ej. 1020304050" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" placeholder="Ej. Juan Perez" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="email">Correo Electronico</label>
+                <input type="email" id="email" placeholder="juan@correo.com" required>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <h3>Detalle de la Venta</h3>
+            <div class="input-group">
+                <label for="producto">Nombre del Producto</label>
+                <input type="text" id="producto" value="Gaseosa Cola 2 Litros" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" id="cantidad" value="2" min="1" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="precio">Precio Unitario (Sin IVA)</label>
+                <input type="number" id="precio" value="5000" required>
+            </div>
+        </div>
+
+        <button type="submit" id="btn-enviar">
+            <span id="btn-texto">Emitir Factura Electronica</span>
+            <div class="spinner" id="btn-spinner"></div>
+        </button>
+    </form>
+
+    <div id="resultado"></div>
+</div>
+
+<script>
+    document.getElementById('formulario-factura').addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+        
+        const btnEnviar = document.getElementById('btn-enviar');
+        const btnTexto = document.getElementById('btn-texto');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const divResultado = document.getElementById('resultado');
+
+        const cedula = document.getElementById('cedula').value;
+        const nombre = document.getElementById('nombre').value;
+        const email = document.getElementById('email').value;
+        const producto = document.getElementById('producto').value;
+        const cantidad = document.getElementById('cantidad').value;
+        const precio = document.getElementById('precio').value;
+
+        const subtotal = (parseFloat(precio) * parseFloat(cantidad));
+        const totalConIva = subtotal * 1.19;
+
+        const facturaJSON = {
+            "reference_code": "POS-" + Date.now(),
+            "document": "01",
+            "numbering_range_id": 389, 
+            "operation_type": "10",
+            "observation": "Venta rapida en mostrador",
+            "payment_details": [{
+                "payment_form": "1",
+                "payment_method_code": "10", 
+                "amount": totalConIva.toFixed(2)
+            }],
+            "customer": {
+                "identification_document_code": "13",
+                "identification": cedula,
+                "legal_organization_code": "2",
+                "names": nombre,
+                "email": email,
+                "tribute_code": "ZZ",
+                "country_code": "CO",
+                "responsibilities": ["R-99-PN"],
+                "municipality_code": "68679"
+            },
+            "items": [{
+                "code_reference": "PROD-" + Date.now(),
+                "name": producto,
+                "quantity": parseFloat(cantidad).toFixed(2),
+                "discount_rate": "0.00",
+                "price": parseFloat(precio).toFixed(2),
+                "unit_measure_code": "94",
+                "standard_code": "999",
+                "taxes": [{"code": "01", "rate": "19.00"}]
+            }]
+        };
+
+        btnEnviar.disabled = true;
+        btnTexto.innerText = 'Procesando...';
+        btnSpinner.style.display = 'block';
+        divResultado.style.display = 'none';
+
+        try {
+            const respuesta = await fetch('http://localhost:3000/crear-factura', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(facturaJSON)
+            });
+
+            const datosDelServidor = await respuesta.json(); 
+            divResultado.style.display = 'block';
+            
+            if (respuesta.ok) {
+                divResultado.className = 'exito';
+                
+                const infoFactus = datosDelServidor.data;
+                const numeroFactura = infoFactus?.bill?.number || infoFactus?.number || infoFactus?.data?.bill?.number || 'Pendiente';
+                const qrFactura = infoFactus?.bill?.qr || infoFactus?.data?.bill?.qr || '';
+
+                let htmlRespuesta = `
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px;">Operacion Exitosa</div>
+                    <div style="text-align: left; font-size: 0.95rem;">
+                        <p style="margin: 8px 0;"><b>Documento DIAN:</b> ${numeroFactura}</p>
+                        <p style="margin: 8px 0;"><b>Referencia:</b> ${facturaJSON.reference_code}</p>
+                        ${qrFactura ? `<p style="margin: 15px 0 5px 0;"><a href="${qrFactura}" target="_blank" style="color: var(--success); text-decoration: none; font-weight: 600; border-bottom: 1px solid var(--success);">Ver codigo QR de la factura</a></p>` : ''}
+                    </div>
+                `;
+                
+                divResultado.innerHTML = htmlRespuesta;
+            } else {
+                divResultado.className = 'error';
+                divResultado.innerHTML = `
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">Atencion</div>
+                    <div style="font-size: 0.95rem;">El servidor rechazo la peticion. Revisa la consola (terminal) de Node.js para ver el detalle tecnico del error.</div>
+                `;
+            }
+        } catch (error) {
+            divResultado.style.display = 'block';
+            divResultado.className = 'error';
+            divResultado.innerHTML = 'Error de conexion. Asegurese de que el servidor local este ejecutandose.';
+        } finally {
+            btnEnviar.disabled = false;
+            btnTexto.innerText = 'Emitir Factura Electronica';
+            btnSpinner.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
